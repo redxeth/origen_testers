@@ -11,7 +11,8 @@ module OrigenTesters
       #   $tester = J750.new
       def initialize
         @max_repeat_loop = 65_535
-        @min_repeat_loop = 33
+#        @min_repeat_loop = 33
+        @min_repeat_loop = 2 # to match Teradyne for now-- when remerge be sure to make option
         @pat_extension = 'avc'
         @compress = true
         # @support_repeat_previous = true
@@ -111,14 +112,15 @@ module OrigenTesters
       #     $tester.start_subroutine("wait_for_done")
       #     < generate your subroutine vectors here >
       #     $tester.end_subroutine
-      def start_subroutine(name)
+      def start_subroutine(name, options = {})
         local_subroutines << name.to_s.chomp unless local_subroutines.include?(name.to_s.chomp) || @inhibit_vectors
         # name += "_subr" unless name =~ /sub/
         Pattern.open name: name, call_startup_callbacks: false, subroutine: true
       end
 
       # Ends the current subroutine that was started with a previous call to start_subroutine
-      def end_subroutine(_cond = false)
+      def end_subroutine(_cond = false, options = {})
+        (_cond, options) = false, _cond if _cond.is_a?(Hash)
         Pattern.close call_shutdown_callbacks: false, subroutine: true
       end
 
