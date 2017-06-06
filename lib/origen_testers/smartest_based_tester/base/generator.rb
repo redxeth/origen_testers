@@ -42,6 +42,7 @@ module OrigenTesters
           @@pattern_masters = nil
           @@pattern_compilers = nil
           @@variables_files = nil
+          @@limits_files = nil
         end
         alias_method :reset_globals, :at_run_start
 
@@ -129,6 +130,26 @@ module OrigenTesters
           @@variables_files ||= {}
         end
 
+        # Returns the limits file for the current or given flow, by default a common limits
+        # file called 'global' will be used for all flows.
+        # To use a different one set the resources_filename at the start of the flow.
+        def limits_file(flw = nil)
+          name = (flw || flow).limits_filename
+          limits_files[name] ||= begin
+            m = platform::LimitsFile.new(manually_register: true)
+            filename = "#{name}_limits.csv"
+            filename = "#{Origen.config.program_prefix}_#{filename}" if Origen.config.program_prefix
+            m.filename = filename
+            m.id = name
+            m
+          end
+        end
+
+        # Returns a hash containing all limits file generators
+        def limits_files
+          @@limits_files ||= {}
+        end
+
         # @api private
         def pattern_reference_recorded(name, options = {})
           # Will be called everytime a pattern reference is made that the ATE should be aware of,
@@ -164,6 +185,9 @@ module OrigenTesters
             g << sheet
           end
           variables_files.each do |name, sheet|
+            g << sheet
+          end
+          limits_files.each do |name, sheet|
             g << sheet
           end
           g

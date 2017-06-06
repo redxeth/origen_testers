@@ -26,6 +26,7 @@ module OrigenTesters
             @limits
           end
           @limits = TestMethods::Limits.new(self)
+          test_limits << @limits if $tester.create_limits_file
           # Add any methods
           if options[:methods][:methods]
             methods = options[:methods][:methods]
@@ -139,6 +140,11 @@ module OrigenTesters
         end
 
         private
+
+        def test_limits
+          flow = Origen.interface.flow  # might try to shorten this? not sure if flow object accessible
+          Origen.interface.limits_file(flow).test_limits
+        end
 
         def inverse_of(type)
           case type

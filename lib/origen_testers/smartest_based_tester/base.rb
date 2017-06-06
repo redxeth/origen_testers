@@ -6,13 +6,22 @@ module OrigenTesters
       # Disable inline (end of vector) comments, enabled by default
       attr_accessor :inline_comments
 
+      # permit modification of minimum repeat count
+      attr_accessor :min_repeat_loop
+      alias_method :min_repeat_count, :min_repeat_loop
+      alias_method :min_repeat_count=, :min_repeat_loop=
+
+      # permit option to create separate limits file
+      attr_accessor :create_limits_file
+      alias_method :create_limit_file, :create_limits_file
+      alias_method :create_limit_file=, :create_limits_file=
+
       # Returns a new J750 instance, normally there would only ever be one of these
       # assigned to the global variable such as $tester by your target:
       #   $tester = J750.new
       def initialize
         @max_repeat_loop = 65_535
-#        @min_repeat_loop = 33
-        @min_repeat_loop = 2 # to match Teradyne for now-- when remerge be sure to make option
+        @min_repeat_loop = 33
         @pat_extension = 'avc'
         @compress = true
         # @support_repeat_previous = true
@@ -21,6 +30,7 @@ module OrigenTesters
         @comment_char = '#'
         @level_period = true
         @inline_comments = true
+        @create_limits_file = false   # whether to create separate limits file or not
       end
 
       # Capture the pin data from a vector to the tester.

@@ -1,0 +1,30 @@
+%#- number of fields appears to depend on how many 'test modes'? For S32K have FT and PRB ones... may need to get array of test modes / limits from SOC...
+%#- for NVM we don't care since we assign limits by test and not by "test mode" .. but this is for general test usage... 
+%#- maybe can leave out test mode and it'll apply to all by default?  But then mergeable with others??
+"Suite name","Pins","Test name","Test number","Lsl","Lsl_typ","Usl_typ","Usl","Units","Lsl","Lsl_typ","Usl_typ","Usl","Units","Bin_s_num","Bin_s_name","Bin_h_num","Bin_h_name","Bin_type","Bin_reprobe","Bin_overon","Test_remarks"
+%#- haven't yet figured out how to do program option below used for building programs
+%#- program = options[:program]
+%#-
+%#- if program
+%#-   program.testmethodlimits.each do |id, parameters|
+%#-<%= id %>:
+%#-     parameters.each do |key, val|
+%#-  <%= key %> = <%= val %>
+%#-     end
+%#-  end
+%#- else
+%#-   Origen.interface.test_methods.collection.each do |method|
+%#-     if method.respond_to?(:limits) && method.limits
+%#- "<%= method.klass %>","pins","testname","testnumber","lsl","lsl_typ","usl_typ","usl","units"
+%#-  <%= method.limits %>;
+%#-     end
+%#-   end
+%#-
+%#-
+%   Origen.interface.test_suites.collection.each do |suite|
+%     if suite.test_method.respond_to?(:limits) && suite.test_method.limits
+%        method = suite.test_method
+%        limits = method.limits
+"<%= suite.name %>","","<% suite.pattern %>","<%= suite.test_number %>","<%= limits.lo_limit  %>","<%= limits.lo_type %>","<%= limits.hi_type %>","<%= limits.hi_limit %>","<%= limits.unit %>"
+%     end
+%   end

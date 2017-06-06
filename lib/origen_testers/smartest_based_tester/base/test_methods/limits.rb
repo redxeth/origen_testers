@@ -6,16 +6,54 @@ module OrigenTesters
           attr_reader :test_method
           attr_accessor :lo_limit, :hi_limit
           attr_accessor :unit
+          alias_method :units, :unit
           attr_accessor :tnum
           alias_method :lo, :lo_limit
           alias_method :lo=, :lo_limit=
           alias_method :hi, :hi_limit
           alias_method :hi=, :hi_limit=
+          attr_accessor :lo_type, :hi_type
+          alias_method :lsl_type, :lo_type
+          alias_method :lsl_typ, :lo_type
+          alias_method :hsl_type, :hi_type
+          alias_method :hsl_typ, :hi_type
 
           def initialize(test_method)
             @test_method = test_method
             @tnum = ''
+            @lo_type = 'GE'
+            @hi_type = 'LE'
           end
+
+          def lo_type=(val)
+            case val.to_s.downcase
+            when 'ge'
+              @lo_type = 'GE'
+            when 'gt'
+              @lo_type = 'GT'
+            when 'na'
+              @lo_type = 'NA'
+            else
+              fail "Lo limit type of #{val} not understood!"
+            end
+          end
+          alias_method :lsl_type=, :lo_type=
+          alias_method :lsl_typ=, :lo_type=
+
+          def hi_type=(val)
+            case val.to_s.downcase
+            when 'le'
+              @hi_type = 'LE'
+            when 'lt'
+              @hi_type = 'LT'
+            when 'na'
+              @hi_type = 'NA'
+            else
+              fail "Hi limit type of #{val} not understood!"
+            end
+          end
+          alias_method :hsl_type=, :hi_type=
+          alias_method :hsl_typ=, :hi_type=
 
           def unit=(val)
             case val.to_s.downcase
@@ -27,6 +65,7 @@ module OrigenTesters
               fail "Limit unit of #{val} not implemented yet!"
             end
           end
+          alias_method :units=, :unit=
 
           def to_s
             if !lo_limit && !hi_limit

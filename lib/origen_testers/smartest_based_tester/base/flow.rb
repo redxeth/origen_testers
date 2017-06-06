@@ -5,12 +5,16 @@ module OrigenTesters
       class Flow < ATP::Formatter
         include OrigenTesters::Flow
 
-        attr_accessor :test_suites, :test_methods, :lines, :stack, :var_filename
+        attr_accessor :test_suites, :test_methods, :lines, :stack, :var_filename, :limits_filename
         # Returns an array containing all runtime variables which get set by the flow
         attr_reader :set_runtime_variables
 
         def var_filename
           @var_filename || 'global'
+        end
+
+        def limits_filename
+          @limits_filename || 'global'
         end
 
         def subdirectory
