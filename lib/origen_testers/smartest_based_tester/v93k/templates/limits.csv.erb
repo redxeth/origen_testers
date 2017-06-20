@@ -1,7 +1,9 @@
 %#- number of fields appears to depend on how many 'test modes'? For S32K have FT and PRB ones... may need to get array of test modes / limits from SOC...
 %#- for NVM we don't care since we assign limits by test and not by "test mode" .. but this is for general test usage... 
 %#- maybe can leave out test mode and it'll apply to all by default?  But then mergeable with others??
-"Suite name","Pins","Test name","Test number","Lsl","Lsl_typ","Usl_typ","Usl","Units","Lsl","Lsl_typ","Usl_typ","Usl","Units","Bin_s_num","Bin_s_name","Bin_h_num","Bin_h_name","Bin_type","Bin_reprobe","Bin_overon","Test_remarks"
+% test_modes = ["FT", "PRB"]
+"Suite name","Pins","Test name","Test number",<% test_modes.each do |mode| %><%= "\"Lsl\",\"Lsl_typ\",\"Usl_typ\",\"Usl\",\"Units\"," %><% end %>"Bin_s_num","Bin_s_name","Bin_h_num","Bin_h_name","Bin_type","Bin_reprobe","Bin_overon","Test_remarks"
+"Test mode","","","",<% test_modes.each do |mode| %><%= "\"#{mode}\",\"#{mode}\",\"#{mode}\",\"#{mode}\",\"#{mode}\","%><% end %>"","","","","","","",""
 %#- haven't yet figured out how to do program option below used for building programs
 %#- program = options[:program]
 %#-
@@ -20,11 +22,16 @@
 %#-     end
 %#-   end
 %#-
-%#-
-%   Origen.interface.test_suites.collection.each do |suite|
+%   Origen.interface.flow.test_suites.collection.each do |suite|
 %     if suite.test_method.respond_to?(:limits) && suite.test_method.limits
 %        method = suite.test_method
 %        limits = method.limits
-"<%= suite.name %>","","<% suite.pattern %>","<%= suite.test_number %>","<%= limits.lo_limit  %>","<%= limits.lo_type %>","<%= limits.hi_type %>","<%= limits.hi_limit %>","<%= limits.unit %>"
+%#- quick fix for burst name difference for multiport bursts
+%        if !!suite.pattern && !suite.pattern.empty? && $tester.multiport
+%          burst_name = "#{suite.pattern}_pset"
+%        else
+%          burst_name = suite.pattern
+%        end
+"<%= suite.name %>","","<%= burst_name %>","<%= suite.test_number %>",<% test_modes.each do |mode| %><%= "\"#{limits.lo_limit}\",\"#{limits.lo_type}\",\"#{limits.hi_type}\",\"#{limits.hi_limit}\",\"#{limits.unit}\"," %><% end %>"","","","","","","",""
 %     end
 %   end

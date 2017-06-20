@@ -208,10 +208,10 @@ module OrigenTesters
             if node.to_a[0] == 'pass'
               line "stop_bin \"#{sbin}\", \"\", , good, noreprobe, green, #{bin}, over_on;"
             elsif node.to_a[0] == 'multi_bin'
-              line "multi_bin"
+              line "multi_bin;"
             else #DH hack for now -- need to update origen_testers to support multibin
               #line "stop_bin \"#{sbin}\", \"#{sdesc}\", , bad, noreprobe, red, #{bin}, over_on;"
-              line "multi_bin"
+              line "multi_bin;"
             end
           end
         end

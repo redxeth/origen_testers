@@ -16,9 +16,14 @@ module OrigenTesters
       alias_method :create_limit_file, :create_limits_file
       alias_method :create_limit_file=, :create_limits_file=
 
-      # Returns a new J750 instance, normally there would only ever be one of these
+      # permit option to generate multiport type patterns
+      # and use multiport type code
+      attr_accessor :multiport
+      alias_method :multi_port, :multiport
+
+      # Returns a new instance, normally there would only ever be one of these
       # assigned to the global variable such as $tester by your target:
-      #   $tester = J750.new
+      #   $tester = V93K.new
       def initialize
         @max_repeat_loop = 65_535
         @min_repeat_loop = 33
@@ -28,9 +33,25 @@ module OrigenTesters
         @match_entries = 10
         @name = 'v93k'
         @comment_char = '#'
-        @level_period = true
+        @level_period = false   # DH was 'true' initially... 
         @inline_comments = true
+
         @create_limits_file = false   # whether to create separate limits file or not
+        @multiport = false            # whether to use multiport bursts or not, if so this
+                                      # indicates the name of the port to use
+        @pin_config = nil
+
+        # pattern compile AIV stuff prob belongs there but thus far is needed
+        # dont implement yet-- but later when merging...
+#        @tmp_dir
+#        @tmf_dir
+#        @vbc_dir
+#        @avc_dir
+#        @pinconfig_file
+#        @allvec_file
+#        @single_pattern_binary_dir
+#        @ai_v2b_options
+#        @tmf_file
       end
 
       # Capture the pin data from a vector to the tester.

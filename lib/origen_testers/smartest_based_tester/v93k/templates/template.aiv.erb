@@ -8,19 +8,39 @@ pinconfig_file			./s32k144.pin
 single_binary_pattern_dir	./single_patterns
  
 
+% if $tester.multiport
 AI_V2B_OPTIONS  -Tk
+% else
+AI_V2B_OPTIONS  -ALT -c <%= $dut.name.to_s.upcase %>.vbc -k -z PS800
+% end
 
+% if $tester.multiport
 PATTERNS name                                               tmf_file            port   v2b_options  
+%#-
 %   subroutines.each do |pattern|
-<%= pattern %>                                              s32k144_out.08.tmf  pNVM   -s
+<%= pattern %>                                              s32k144_out.08.tmf  <%= $tester.multiport %>   -s
 %   end
 %   patterns.each do |pattern|
-<%= pattern %>                                              s32k144_out.08.tmf  pNVM   -T
+<%= pattern %>                                              s32k144_out.08.tmf  <%= $tester.multiport %>   -T
+%   end
+%#-
+% else  # normal, non-multi-port
+PATTERNS name                                               tmf_file            v2b_options  
+%#-
+%   subroutines.each do |pattern|
+<%= pattern %>                                              <%= $dut.name.to_s.upcase %>.tmf -s
 %   end
 %   patterns.each do |pattern|
+<%= pattern %>                                              <%= $dut.name.to_s.upcase %>.tmf
+%   end
+% end
+
+% if $tester.multiport
+%  patterns.each do |pattern|
 MULTI_PORT_BURST "<%= "#{pattern}_pset" %>" 
-PORTS     pNVM                                  
+PORTS     <%= $tester.multiport %>                                  
 SEQ_GRPS  grp1                                  
           <%= pattern %>
 
+%   end
 % end
