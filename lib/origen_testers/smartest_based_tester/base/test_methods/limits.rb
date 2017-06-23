@@ -21,8 +21,12 @@ module OrigenTesters
           def initialize(test_method)
             @test_method = test_method
             @tnum = ''
+
+            # here have defaults for functional
             @lo_type = 'GE'
             @hi_type = 'LE'
+            @lo = '1'
+            @hi = '1'
           end
 
           def lo_type=(val)
@@ -61,6 +65,8 @@ module OrigenTesters
               @unit = 'V'
             when 'a', 'amps'
               @unit = 'A'
+            when 'ua', 'microamps'
+              @unit = 'uA'
             else
               fail "Limit unit of #{val} not implemented yet!"
             end
