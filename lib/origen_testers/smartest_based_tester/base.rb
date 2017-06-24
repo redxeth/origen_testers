@@ -33,7 +33,9 @@ module OrigenTesters
         @match_entries = 10
         @name = 'v93k'
         @comment_char = '#'
-        @level_period = false   # DH was 'true' initially... 
+        @level_period = true   # DH tried setting to false to help with vlpread patts-- need more work,
+                               # however setting to false causes CTIM command to activate below
+                               # (before_timeset_change method) which currently can't compile 
         @inline_comments = true
 
         @create_limits_file = false   # whether to create separate limits file or not
