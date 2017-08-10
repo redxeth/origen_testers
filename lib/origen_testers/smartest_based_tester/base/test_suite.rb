@@ -115,6 +115,9 @@ module OrigenTesters
         end
 
         def lines
+          if pattern
+            burst = $tester.multiport ? "#{pattern}_pset" : "#{pattern}"
+          end
           l = []
           l << '  override = 1;'
           l << " override_tim_equ_set = #{wrap_if_string(timing_equation)};" if timing_equation
@@ -124,7 +127,7 @@ module OrigenTesters
           l << " override_anaset = #{wrap_if_string(analog_set)};" if analog_set
           l << " override_timset = #{wrap_if_string(timing_set)};" if timing_set
           l << " override_levset = #{wrap_if_string(level_set)};" if level_set
-          l << " override_seqlbl = #{wrap_if_string(pattern)};" if pattern
+          l << " override_seqlbl = #{wrap_if_string(burst)};" if pattern
           l << " override_test_number = #{test_number};" if test_number
           l << " override_testf = #{test_method.id};" if test_method
           l << "  test_level = #{test_level};" if test_level
@@ -136,7 +139,8 @@ module OrigenTesters
           l
         end
 
-        def method_missing(method, *args, &block)
+        def method_missing(method, *args, &block) # used to handle the attributes defined above, as they are dynamic type methods
+          # only executed with power cycle test suites?
           if test_method && test_method.respond_to?(method)
             test_method.send(method, *args, &block)
           else
@@ -144,7 +148,7 @@ module OrigenTesters
           end
         end
 
-        def respond_to?(method)
+        def respond_to?(method)  # used to determine whether attribute method exists yet
           (test_method && test_method.respond_to?(method)) || super
         end
 
