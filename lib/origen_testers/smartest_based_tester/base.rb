@@ -323,6 +323,12 @@ module OrigenTesters
         end
       end
 
+      # Call a match loop.
+      # no multiple entry supported
+      def call_match
+        call_subroutine("match_done")
+      end
+
       # Returns the number of cycles to wait for any fails to propagate through the pipeline based on
       # the current timeset
       def propagation_delay
