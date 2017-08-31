@@ -162,7 +162,7 @@ module OrigenTesters
     alias_method :unless_jobs, :unless_job
 
     def if_enable(word, options = {})
-      if word.nil?
+      if word.nil? || word == ""
         yield   # then no enable word will be used
         return
       end
@@ -179,7 +179,7 @@ module OrigenTesters
     alias_method :if_enabled, :if_enable
 
     def unless_enable(word, options = {})
-      if word.nil?
+      if word.nil? || word == ""
         yield   # then no enable word will be used
         return
       end

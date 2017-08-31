@@ -147,6 +147,9 @@ module OrigenTesters
 
         def on_flow_flag(node)
           flag, state, *nodes = *node
+          if flag.nil? || flag == "" || flag.empty?
+            return
+          end
           [flag].flatten.each do |f|
             flow_control_variables << f.upcase
           end
@@ -155,6 +158,9 @@ module OrigenTesters
 
         def on_run_flag(node)
           flag, state, *nodes = *node
+          if flag.nil? || flag == "" || flag.empty?
+            return
+          end
           [flag].flatten.each do |f|
             runtime_control_variables << f.upcase
           end
@@ -163,18 +169,27 @@ module OrigenTesters
 
         def on_enable_flow_flag(node)
           flag = node.value.upcase
+          if flag.nil? || flag == "" || flag.empty?
+            return
+          end
           flow_control_variables << flag
           line "@#{flag} = 1;"
         end
 
         def on_disable_flow_flag(node)
           flag = node.value.upcase
+          if flag.nil? || flag == "" || flag.empty?
+            return
+          end
           flow_control_variables << flag
           line "@#{flag} = 0;"
         end
 
         def on_set_run_flag(node)
           flag = node.value.upcase
+          if flag.nil? || flag == "" || flag.empty?
+            return
+          end
           runtime_control_variables << flag
           line "@#{flag} = 1;"
         end
