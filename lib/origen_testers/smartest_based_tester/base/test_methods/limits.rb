@@ -17,6 +17,13 @@ module OrigenTesters
           alias_method :lsl_typ, :lo_type
           alias_method :hsl_type, :hi_type
           alias_method :hsl_typ, :hi_type
+          attr_accessor :test_name               # used for 'test_name' for external type limits table
+          alias_method :tname, :test_name
+          alias_method :name, :test_name
+          alias_method :name=, :test_name=
+          attr_accessor :type                    # limit type
+          alias_method :limit_type, :type
+          alias_method :limit_type=, :type=
 
           def initialize(test_method)
             @test_method = test_method
@@ -27,6 +34,8 @@ module OrigenTesters
             @hi_type = 'LE'
             @lo = '1'
             @hi = '1'
+            @test_name = ''
+            @type = :functional    # assume functional unless otherwise specified
           end
 
           def lo_type=(val)
@@ -76,16 +85,16 @@ module OrigenTesters
           def to_s
             if !lo_limit && !hi_limit
               if tnum == ''
-                "\"#{test_name}\"" + ' = "":"NA":"":"NA":"":"":""'
+                "\"#{int_test_name}\"" + ' = "":"NA":"":"NA":"":"":""'
               else
-                "\"#{test_name}\"" + " = \"\":\"NA\":\"\":\"NA\":\"\":\"#{tnum}\":\"0\""
+                "\"#{int_test_name}\"" + " = \"\":\"NA\":\"\":\"NA\":\"\":\"#{tnum}\":\"0\""
               end
             elsif !lo_limit
-              "\"#{test_name}\"" + " = \"\":\"NA\":\"#{hi_limit}\":\"LE\":\"#{unit}\":\"#{tnum}\":\"0\""
+              "\"#{int_test_name}\"" + " = \"\":\"NA\":\"#{hi_limit}\":\"LE\":\"#{unit}\":\"#{tnum}\":\"0\""
             elsif !hi_limit
-              "\"#{test_name}\"" + " = \"#{lo_limit}\":\"GE\":\"\":\"NA\":\"#{unit}\":\"#{tnum}\":\"0\""
+              "\"#{int_test_name}\"" + " = \"#{lo_limit}\":\"GE\":\"\":\"NA\":\"#{unit}\":\"#{tnum}\":\"0\""
             else
-              "\"#{test_name}\"" + " = \"#{lo_limit}\":\"GE\":\"#{hi_limit}\":\"LE\":\"#{unit}\":\"#{tnum}\":\"0\""
+              "\"#{int_test_name}\"" + " = \"#{lo_limit}\":\"GE\":\"#{hi_limit}\":\"LE\":\"#{unit}\":\"#{tnum}\":\"0\""
             end
           end
 
@@ -99,7 +108,8 @@ module OrigenTesters
 
           private
 
-          def test_name
+          # used for limits defined internal to TF
+          def int_test_name
             name = test_method.test_name if test_method.respond_to?(:test_name)
             name || 'Functional'
           end

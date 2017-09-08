@@ -1,7 +1,8 @@
 %#- number of fields appears to depend on how many 'test modes'? For S32K have FT and PRB ones... may need to get array of test modes / limits from SOC...
 %#- for NVM we don't care since we assign limits by test and not by "test mode" .. but this is for general test usage... 
 %#- maybe can leave out test mode and it'll apply to all by default?  But then mergeable with others??
-% test_modes = ["FT", "PRB"]
+%#- test_modes = ["FT", "PRB"]
+% test_modes = ["FT"]
 "Suite name","Pins","Test name","Test number",<% test_modes.each do |mode| %><%= "\"Lsl\",\"Lsl_typ\",\"Usl_typ\",\"Usl\",\"Units\"," %><% end %>"Bin_s_num","Bin_s_name","Bin_h_num","Bin_h_name","Bin_type","Bin_reprobe","Bin_overon","Test_remarks"
 "Test mode","","","",<% test_modes.each do |mode| %><%= "\"#{mode}\",\"#{mode}\",\"#{mode}\",\"#{mode}\",\"#{mode}\","%><% end %>"","","","","","","",""
 %#- haven't yet figured out how to do program option below used for building programs
@@ -22,16 +23,56 @@
 %#-     end
 %#-   end
 %#-
+%   test_number = 0
 %   Origen.interface.flow.test_suites.collection.each do |suite|
 %     if suite.test_method.respond_to?(:limits) && suite.test_method.limits
 %        method = suite.test_method
 %        limits = method.limits
-%#- quick fix for burst name difference for multiport bursts
+%#- 
+%#-      DETERMINE IF FUNCTIONAL OR NOT
+%        limit_type = (limits.type == :parametric) ? :parametric : :functional
+%#- 
+%#-      GET BURST NAME
 %        if !!suite.pattern && !suite.pattern.empty? && $tester.multiport
 %          burst_name = "#{suite.pattern}_pset"
+%        elsif !suite.pattern
+%          burst_name = ''
 %        else
 %          burst_name = suite.pattern
 %        end
-"<%= suite.name %>","","<%= burst_name %>","<%= suite.test_number %>",<% test_modes.each do |mode| %><%= "\"#{limits.lo_limit}\",\"#{limits.lo_type}\",\"#{limits.hi_type}\",\"#{limits.hi_limit}\",\"#{limits.unit}\"," %><% end %>"","","","","","","",""
+%#-
+%#-      GET BIN INFO
+%        bin_num = suite.bin
+%        sbin_num = suite.soft_bin
+%#-      Fill in any nils if other bin type is available
+%        if sbin_num.nil? && !bin_num.nil?
+%          sbin_num = bin_num
+%        elsif bin_num.nil? && !sbin_num.nil?
+%          bin_num = sbin_num
+%        end
+%#-
+%#-
+%#- PARAMETRIC TESTS
+%#-   test_name = name passed in from limit as parameter-name based (third column)
+%#- if suite.name =~ /nvm_delta_lpb/ || suite.name =~ /bistcom/
+%#-"DEBUG:  <%= suite.name %>;  limit_type: <%= limit_type %>; limits.type: <%= limits.type %>; limits.test_name: <%= limits.test_name %>"
+%#- end
+%        if limit_type == :parametric # for parametric need 'test name', 'test number' and 'bin #s'.
+%          test_name = limits.test_name == '' ? 'PARA_TEST_NAME' : limits.test_name
+%#-   first parametric limit
+"<%= suite.name %>","","<%= test_name %>","<%= test_number %>",<% test_modes.each do |mode| %><%= "\"#{limits.lo_limit}\",\"#{limits.lo_type}\",\"#{limits.hi_type}\",\"#{limits.hi_limit}\",\"#{limits.unit}\"," %><% end %>"<%= sbin_num %>","","<%= bin_num %>","","","","",""
+%          test_number += 1
+%#-   now functional limit
+"<%= suite.name %>","","<%= burst_name %>","<%= test_number %>",<% test_modes.each do |mode| %><%= "\"1\",\"#{limits.lo_type}\",\"#{limits.hi_type}\",\"1\",," %><% end %>"<%= sbin_num %>","","<%= bin_num %>","","","","",""
+%          test_number += 1
+%        end
+%#- 
+%#- 
+%#- FUNCTIONAL TESTS
+%#-   test_name = burst name (third column)
+%        if limit_type == :functional
+"<%= suite.name %>","","<%= burst_name %>","<%= test_number %>",<% test_modes.each do |mode| %><%= "\"1\",\"#{limits.lo_type}\",\"#{limits.hi_type}\",\"1\",," %><% end %>"<%= sbin_num %>","","<%= bin_num %>","","","","",""
+%          test_number += 1
+%        end
 %     end
 %   end

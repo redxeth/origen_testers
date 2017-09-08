@@ -37,6 +37,8 @@ module OrigenTesters
              ffv_enable
              frg_enable
              hardware_dsp_disable
+             bin
+             soft_bin
           )
 
         ALIASES = {
@@ -58,7 +60,10 @@ module OrigenTesters
           seqlbl:          :pattern,
           mx_waves_enable: :log_mixed_signal_waveform,
           hw_dsp_disable:  :hardware_dsp_disable,
-          ffc_on_fail:     :log_first
+          ffc_on_fail:     :log_first,
+          hard_bin:        :bin,
+          hbin:            :bin,
+          sbin:            :soft_bin
         }
 
         DEFAULTS = {
