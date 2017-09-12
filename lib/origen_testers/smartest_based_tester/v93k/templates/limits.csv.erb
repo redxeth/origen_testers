@@ -63,7 +63,7 @@
 "<%= suite.name %>","","<%= test_name %>","<%= test_number %>",<% test_modes.each do |mode| %><%= "\"#{limits.lo_limit}\",\"#{limits.lo_type}\",\"#{limits.hi_type}\",\"#{limits.hi_limit}\",\"#{limits.unit}\"," %><% end %>"<%= sbin_num %>","","<%= bin_num %>","","","","",""
 %          test_number += 1
 %#-   now functional limit
-"<%= suite.name %>","","<%= burst_name %>","<%= test_number %>",<% test_modes.each do |mode| %><%= "\"1\",\"#{limits.lo_type}\",\"#{limits.hi_type}\",\"1\",," %><% end %>"<%= sbin_num %>","","<%= bin_num %>","","","","",""
+"<%= suite.name %>","","<%= burst_name %>","<%= test_number %>",<% test_modes.each do |mode| %><%= "\"1\",\"#{limits.lo_type}\",\"#{limits.hi_type}\",\"1\",\"\"," %><% end %>"<%= sbin_num %>","","<%= bin_num %>","","","","",""
 %          test_number += 1
 %        end
 %#- 
@@ -71,7 +71,7 @@
 %#- FUNCTIONAL TESTS
 %#-   test_name = burst name (third column)
 %        if limit_type == :functional
-"<%= suite.name %>","","<%= burst_name %>","<%= test_number %>",<% test_modes.each do |mode| %><%= "\"1\",\"#{limits.lo_type}\",\"#{limits.hi_type}\",\"1\",," %><% end %>"<%= sbin_num %>","","<%= bin_num %>","","","","",""
+"<%= suite.name %>","","<%= burst_name %>","<%= test_number %>",<% test_modes.each do |mode| %><%= "\"1\",\"#{limits.lo_type}\",\"#{limits.hi_type}\",\"1\",\"\"," %><% end %>"<%= sbin_num %>","","<%= bin_num %>","","","","",""
 %          test_number += 1
 %        end
 %     end

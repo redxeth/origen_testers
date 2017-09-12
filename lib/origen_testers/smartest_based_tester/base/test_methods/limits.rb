@@ -72,10 +72,24 @@ module OrigenTesters
             case val.to_s.downcase
             when 'v', 'volts'
               @unit = 'V'
+            when 'mv', 'millivolts'
+              @unit = 'mV'
             when 'a', 'amps'
               @unit = 'A'
+            when 'ma', 'milliamps'
+              @unit = 'mA'
             when 'ua', 'microamps'
               @unit = 'uA'
+            when 'ns', 'nanoseconds'
+              @unit = 'nS'
+            when 's', 'seconds'
+              @unit = 'S'
+            when 'hz', 'hertz'
+              @unit = 'Hz'
+            when 'khz', 'kilohertz'
+              @unit = 'kHz'
+            when 'mhz', 'megahertz'
+              @unit = 'MHz'
             else
               fail "Limit unit of #{val} not implemented yet!"
             end
