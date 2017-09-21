@@ -142,7 +142,7 @@ module OrigenTesters
         private
 
         def test_limits
-          flow = Origen.interface.flow  # might try to shorten this? not sure if flow object accessible
+          flow = Origen.interface.flow
           Origen.interface.limits_file(flow).test_limits
         end
 

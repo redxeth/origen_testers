@@ -28,6 +28,7 @@ module OrigenTesters
         def at_flow_start
           flow.at_flow_start
           @pattern_master_filename = nil
+          @pattern_definition_filename = nil
         end
 
         # @api private
@@ -43,6 +44,7 @@ module OrigenTesters
           @@pattern_compilers = nil
           @@variables_files = nil
           @@limits_files = nil
+          @@pattern_definitions = nil
         end
         alias_method :reset_globals, :at_run_start
 
@@ -58,6 +60,15 @@ module OrigenTesters
 
         def pattern_master_filename
           @pattern_master_filename || 'global'
+        end
+
+        def pattern_definition_filename=(name)
+          @pattern_definition_filename = name
+        end
+
+        def pattern_definition_filename
+          #DH have to figure out how to change from global
+          @pattern_definition_filename || 'global'
         end
 
         def flow(filename = Origen.file_handler.current_file.basename('.rb').to_s)
@@ -110,6 +121,24 @@ module OrigenTesters
           @@pattern_compilers ||= {}
         end
 
+        # Returns the pattern definition file (.csv) for the current flow
+        # to be used with SmartBuild
+        def pattern_definition
+          pattern_definitions[pattern_definition_filename] ||= begin
+            m = platform::PatternDefinition.new(manually_register: true)
+            name = "#{pattern_definition_filename}.csv"
+            name = "#{Origen.config.program_prefix}_#{name}" if Origen.config.program_prefix
+            m.filename = name
+            m.id = pattern_definition_filename
+            m
+          end
+        end
+
+        # Returns a hash containing all pattern definition generators
+        def pattern_definitions
+          @@pattern_definitions ||= {}
+        end
+
         # Returns the variables file for the current or given flow, by default a common variable
         # file called 'global' will be used for all flows.
         # To use a different one set the resources_filename at the start of the flow.
@@ -157,6 +186,7 @@ module OrigenTesters
           # need to instantiate a pattern master and compiler to handle it later
           pattern_master
           pattern_compiler
+          pattern_definition
         end
 
         def test_suites
@@ -182,6 +212,9 @@ module OrigenTesters
             g << sheet
           end
           pattern_compilers.each do |name, sheet|
+            g << sheet
+          end
+          pattern_definitions.each do |name, sheet|
             g << sheet
           end
           variables_files.each do |name, sheet|

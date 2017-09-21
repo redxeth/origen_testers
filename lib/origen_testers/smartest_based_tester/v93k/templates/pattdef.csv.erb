@@ -1,0 +1,50 @@
+%#- PATTERN DEFINITION FILE
+%#-   Used by SmartBuild from Advantest
+%#- -------------------------------------------
+%#- Type:
+%#-   : Burst   -- burst level -- has adjustment for Port,
+%#-                               can include reference to pattern separate
+%#-   : Pattern -- raw vectors want to run
+%#- Name:  Pattern burst or label name
+%#- Port:
+%#-   : <port name>
+%#-   : @  (if not using a Port, port defined as '@' inside binl)
+%#- Package: Package name if any
+%#- Revision: Silicon revision if any
+%#- Location: Pattern path
+%#- Pattern Names: raw pattern name referred to by burst (if burst type),
+%#-                otherwise same as Name above for the pattern
+%#- Flags:
+%#-   : EMPTY_BURST (will generate empty burst--  no vectors)
+%#-   : NOT_IN_USE  (will not generate the burst)
+%#- 
+%#- 
+% package = $soc.respond_to?(:package) ? $soc.revision : ''
+% revision = $soc.respond_to?(:revision) ? $soc.revision : ''
+%# - need to have your app set $soc.pattern_path if you want to use below
+% location = $soc.respond_to?(:pattern_path) ? $soc.pattern_path : 'pattern path not defined'
+%#-
+"Type","Name","Port","Package","Revision","Location","Pattern Names","Flags"
+% patterns.each do |pattern|
+%   if $tester.multiport
+%     type = "Burst"
+%     name = "#{pattern}_pset"
+%     port = $tester.multiport
+%   else
+%     type = "Pattern"
+%     name = pattern
+%     port = '@'
+%   end
+%   pattern_name = pattern
+%   flags = ''
+"<%= type %>","<%= name %>","<%= port %>","<%= package %>","<%= revision %>","<%= location %>","<%= pattern_name %>","<%= flags %>"
+% end
+%#-
+% subroutines.each do |pattern|
+%   type = "Pattern"
+%   name = pattern
+%   port = $tester.multiport ? $tester.multiport : '@'
+%   pattern_name = pattern
+%   flags = ''
+"<%= type %>","<%= name %>","<%= port %>,"<%= package %>","<%= revision %>,"<%= location %>","<%= pattern_name %>,"<%= flags %>"
+% end
