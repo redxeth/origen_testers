@@ -1,0 +1,23 @@
+%#- PATTERN DEPENDENCY FILE
+%#-   Used by SmartBuild from Advantest
+%#- -------------------------------------------
+%#- 
+ "PatternBurst":[
+% patterns.each_with_index do |pattern, index|
+%   if index == patterns.size - 1
+        "<%= "#{pattern}_pset" %>"
+%   else
+        "<%= "#{pattern}_pset" %>",
+%   end
+% end
+],
+
+ "Pattern":[
+% subroutines.each_with_index do |pattern, index|
+%   if index == subroutines.size - 1
+        "<%= "#{pattern}" %>"
+%   else
+        "<%= "#{pattern}" %>",
+%   end
+% end
+],

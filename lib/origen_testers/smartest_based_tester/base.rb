@@ -21,6 +21,14 @@ module OrigenTesters
       attr_accessor :multiport
       alias_method :multi_port, :multiport
 
+      # indicate whether want SmartBuild compatibility
+      attr_accessor :smartbuild_capable
+      alias_method :smart_build_capable, :smartbuild_capable
+      alias_method :sb_capable, :smartbuild_capable
+      alias_method :sb_on, :smartbuild_capable
+      alias_method :smartbuild, :smartbuild_capable
+      alias_method :smart_build, :smartbuild_capable
+
       # Returns a new instance, normally there would only ever be one of these
       # assigned to the global variable such as $tester by your target:
       #   $tester = V93K.new
@@ -41,6 +49,7 @@ module OrigenTesters
         @create_limits_file = false   # whether to create separate limits file or not
         @multiport = false            # whether to use multiport bursts or not, if so this
                                       # indicates the name of the port to use
+        @smartbuild_capable = false   # whether to support additional files needed for SmartBuild
         @pin_config = nil
 
         # pattern compile AIV stuff prob belongs there but thus far is needed

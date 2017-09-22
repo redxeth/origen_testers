@@ -29,6 +29,7 @@ module OrigenTesters
           flow.at_flow_start
           @pattern_master_filename = nil
           @pattern_definition_filename = nil
+          @pattern_dependency_filename = nil
         end
 
         # @api private
@@ -45,6 +46,7 @@ module OrigenTesters
           @@variables_files = nil
           @@limits_files = nil
           @@pattern_definitions = nil
+          @@pattern_dependencies = nil
         end
         alias_method :reset_globals, :at_run_start
 
@@ -67,8 +69,15 @@ module OrigenTesters
         end
 
         def pattern_definition_filename
-          #DH have to figure out how to change from global
           @pattern_definition_filename || 'global'
+        end
+        
+        def pattern_dependency_filename=(name)
+          @pattern_dependency_filename = name
+        end
+
+        def pattern_dependency_filename
+          @pattern_dependency_filename || 'global'
         end
 
         def flow(filename = Origen.file_handler.current_file.basename('.rb').to_s)
@@ -121,12 +130,30 @@ module OrigenTesters
           @@pattern_compilers ||= {}
         end
 
+        # Returns the pattern dependency file (.json) for the current flow
+        # to be used with SmartBuild
+        def pattern_dependency
+          pattern_dependencies[pattern_dependency_filename] ||= begin
+            m = platform::PatternDependency.new(manually_register: true)
+            name = "#{pattern_dependency_filename}_pattdep.json"
+            name = "#{Origen.config.program_prefix}_#{name}" if Origen.config.program_prefix
+            m.filename = name
+            m.id = pattern_dependency_filename
+            m
+          end
+        end
+
+        # Returns a hash containing all pattern dependency generators
+        def pattern_dependencies
+          @@pattern_dependencies ||= {}
+        end
+
         # Returns the pattern definition file (.csv) for the current flow
         # to be used with SmartBuild
         def pattern_definition
           pattern_definitions[pattern_definition_filename] ||= begin
             m = platform::PatternDefinition.new(manually_register: true)
-            name = "#{pattern_definition_filename}.csv"
+            name = "#{pattern_definition_filename}_pattdef.csv"
             name = "#{Origen.config.program_prefix}_#{name}" if Origen.config.program_prefix
             m.filename = name
             m.id = pattern_definition_filename
@@ -187,6 +214,7 @@ module OrigenTesters
           pattern_master
           pattern_compiler
           pattern_definition
+          pattern_dependency
         end
 
         def test_suites
@@ -214,14 +242,21 @@ module OrigenTesters
           pattern_compilers.each do |name, sheet|
             g << sheet
           end
-          pattern_definitions.each do |name, sheet|
-            g << sheet
+          if $tester.smartbuild
+            pattern_definitions.each do |name, sheet|
+              g << sheet
+            end
+            pattern_dependencies.each do |name, sheet|
+              g << sheet
+            end
           end
           variables_files.each do |name, sheet|
             g << sheet
           end
-          limits_files.each do |name, sheet|
-            g << sheet
+          if $tester.create_limits_file
+            limits_files.each do |name, sheet|
+              g << sheet
+            end
           end
           g
         end
