@@ -375,6 +375,9 @@ module OrigenTesters
 
     def clean_options(options)
       ATP::AST::Builder::CONDITION_KEYS.each do |key|
+        if options[key] == ""
+          options.delete(key)   # remove option if any invalid values
+        end
         if v = options.delete(key)
           options[:conditions] ||= {}
           if options[:conditions][key]

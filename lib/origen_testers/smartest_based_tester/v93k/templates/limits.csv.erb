@@ -1,10 +1,27 @@
-%#- number of fields appears to depend on how many 'test modes'? For S32K have FT and PRB ones... may need to get array of test modes / limits from SOC...
-%#- for NVM we don't care since we assign limits by test and not by "test mode" .. but this is for general test usage... 
-%#- maybe can leave out test mode and it'll apply to all by default?  But then mergeable with others??
-%#- test_modes = ["FT", "PRB"]
-% test_modes = ["FT"]
-"Suite name","Pins","Test name","Test number",<% test_modes.each do |mode| %><%= "\"Lsl\",\"Lsl_typ\",\"Usl_typ\",\"Usl\",\"Units\"," %><% end %>"Bin_s_num","Bin_s_name","Bin_h_num","Bin_h_name","Bin_type","Bin_reprobe","Bin_overon","Test_remarks"
-"Test mode","","","",<% test_modes.each do |mode| %><%= "\"#{mode}\",\"#{mode}\",\"#{mode}\",\"#{mode}\",\"#{mode}\","%><% end %>"","","","","","","",""
+%#- LIMITS FILE
+% test_modes = $tester.respond_to?(:limitfile_pims_events) ? $tester.limitfile_pims_events : [""]
+%#-  *********************
+%#-  **      HEADER     **
+%#-  *********************
+% line_arr = ["Suite name","Pins","Test name","Test number"]
+% test_modes.each do |mode| # here repeat fields that are per test mode
+%#- supposedly can add bin number by test_mode but haven't tried it yet
+%   line_arr += ["Lsl","Lsl_typ","Usl_typ","Usl","Units"]
+% end
+% line_arr += ["Bin_s_num","Bin_s_name","Bin_h_num","Bin_h_name","Bin_type","Bin_reprobe","Bin_overon","Test_remarks"]
+%#- print out the header line
+<%= line_arr.map(&:inspect).join(',') %>
+% unless test_modes == [""]
+%#- print out extra test modes line only if real test modes exist
+%   line_arr = ["Test mode", "", "", ""]
+%   test_modes.each do |mode|
+%     line_arr += ["#{mode}", "#{mode}", "#{mode}", "#{mode}", "#{mode}"]
+%   end
+%   line_arr += ["","","","","","","",""]
+%#- print out the test modes line
+<%= line_arr.map(&:inspect).join(',') %>
+% end
+%#-  *********************
 %#- haven't yet figured out how to do program option below used for building programs
 %#- program = options[:program]
 %#-
@@ -23,11 +40,12 @@
 %#-     end
 %#-   end
 %#-
-%   test_number = 0
+%#-  test_number = 0
 %   Origen.interface.flow.test_suites.collection.each do |suite|
 %     if suite.test_method.respond_to?(:limits) && suite.test_method.limits
 %        method = suite.test_method
 %        limits = method.limits
+%        test_number = suite.test_number
 %#- 
 %#-      DETERMINE IF FUNCTIONAL OR NOT
 %        limit_type = (limits.type == :parametric) ? :parametric : :functional
@@ -57,22 +75,85 @@
 %#- if suite.name =~ /nvm_delta_lpb/ || suite.name =~ /bistcom/
 %#-"DEBUG:  <%= suite.name %>;  limit_type: <%= limit_type %>; limits.type: <%= limits.type %>; limits.test_name: <%= limits.test_name %>"
 %#- end
+%#-
+%#-
+%#-      # PARAMETRIC TEST
 %        if limit_type == :parametric # for parametric need 'test name', 'test number' and 'bin #s'.
 %          test_name = limits.test_name == '' ? 'PARA_TEST_NAME' : limits.test_name
-%#-   first parametric limit
-"<%= suite.name %>","","<%= test_name %>","<%= test_number %>",<% test_modes.each do |mode| %><%= "\"#{limits.lo_limit}\",\"#{limits.lo_type}\",\"#{limits.hi_type}\",\"#{limits.hi_limit}\",\"#{limits.unit}\"," %><% end %>"<%= sbin_num %>","","<%= bin_num %>","","","","",""
-%          test_number += 1
-%#-   now functional limit
-"<%= suite.name %>","","<%= burst_name %>","<%= test_number %>",<% test_modes.each do |mode| %><%= "\"1\",\"#{limits.lo_type}\",\"#{limits.hi_type}\",\"1\",\"\"," %><% end %>"<%= sbin_num %>","","<%= bin_num %>","","","","",""
-%          test_number += 1
-%        end
+%#-        first the parametric limit for the parametric test
+%          line_arr = []
+%          line_arr.push("#{suite.name}")   # suite name
+%          line_arr.push("")                # pins
+%          line_arr.push("#{test_name}")    # test name
+%          line_arr.push("#{test_number}")  # test number
+%          test_modes.each do |mode| # here repeat fields that are per test mode
+%            line_arr.push("#{limits.lo_limit}")  # lo_limit
+%            line_arr.push("#{limits.lo_type}")   # lo_type
+%            line_arr.push("#{limits.hi_type}")   # hi_type
+%            line_arr.push("#{limits.hi_limit}")  # hi_limit
+%            line_arr.push("#{limits.unit}")      # limit unit
+%          end
+%          line_arr.push("#{sbin_num}")     # soft bin num
+%          line_arr.push("")                # soft bin name
+%          line_arr.push("#{bin_num}")      # hard bin num
+%          line_arr.push("")                # hard bin name
+%          line_arr.push("")                # bin type
+%          line_arr.push("")                # bin reprobe
+%          line_arr.push("")                # bin_overon
+%          line_arr.push("")                # test remarks
+%#-        now print out the line
+<%= line_arr.map(&:inspect).join(',') %>
+%#-
+%#-        now the functional limit for the parametric test
+%          line_arr = []
+%          line_arr.push("#{suite.name}")   # suite name
+%          line_arr.push("")                # pins
+%          line_arr.push("#{burst_name}")    # test name
+%          line_arr.push("#{test_number}")  # test number
+%          test_modes.each do |mode| # here repeat fields that are per test mode
+%            line_arr.push("1")                   # lo_limit
+%            line_arr.push("#{limits.lo_type}")   # lo_type
+%            line_arr.push("#{limits.hi_type}")   # hi_type
+%            line_arr.push("1")                   # hi_limit
+%            line_arr.push("")              # limit unit
+%          end
+%          line_arr.push("#{sbin_num}")     # soft bin num
+%          line_arr.push("")                # soft bin name
+%          line_arr.push("#{bin_num}")      # hard bin num
+%          line_arr.push("")                # hard bin name
+%          line_arr.push("")                # bin type
+%          line_arr.push("")                # bin reprobe
+%          line_arr.push("")                # bin_overon
+%          line_arr.push("")                # test remarks
+%#-        now print out the line
+<%= line_arr.map(&:inspect).join(',') %>
+%        end  # PARAMETRIC TEST
 %#- 
 %#- 
 %#- FUNCTIONAL TESTS
-%#-   test_name = burst name (third column)
 %        if limit_type == :functional
-"<%= suite.name %>","","<%= burst_name %>","<%= test_number %>",<% test_modes.each do |mode| %><%= "\"1\",\"#{limits.lo_type}\",\"#{limits.hi_type}\",\"1\",\"\"," %><% end %>"<%= sbin_num %>","","<%= bin_num %>","","","","",""
-%          test_number += 1
-%        end
+%          line_arr = []
+%          line_arr.push("#{suite.name}")   # suite name
+%          line_arr.push("")                # pins
+%          line_arr.push("#{burst_name}")    # test name
+%          line_arr.push("#{test_number}")  # test number
+%          test_modes.each do |mode| # here repeat fields that are per test mode
+%            line_arr.push("1")                   # lo_limit
+%            line_arr.push("#{limits.lo_type}")   # lo_type
+%            line_arr.push("#{limits.hi_type}")   # hi_type
+%            line_arr.push("1")                   # hi_limit
+%            line_arr.push("")              # limit unit
+%          end
+%          line_arr.push("#{sbin_num}")     # soft bin num
+%          line_arr.push("")                # soft bin name
+%          line_arr.push("#{bin_num}")      # hard bin num
+%          line_arr.push("")                # hard bin name
+%          line_arr.push("")                # bin type
+%          line_arr.push("")                # bin reprobe
+%          line_arr.push("")                # bin_overon
+%          line_arr.push("")                # test remarks
+%#-        now print out the line
+<%= line_arr.map(&:inspect).join(',') %>
+%        end # FUNCTIONAL TEST
 %     end
 %   end

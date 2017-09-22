@@ -29,6 +29,16 @@ module OrigenTesters
       alias_method :smartbuild, :smartbuild_capable
       alias_method :smart_build, :smartbuild_capable
 
+      # indicate limit PIMS events
+      attr_accessor :limitfile_pims_events
+      alias_method :limitfile_pim_event, :limitfile_pims_events
+      alias_method :limitfile_pim_events, :limitfile_pims_events
+      alias_method :limitfile_pims_event, :limitfile_pims_events
+      alias_method :limitsfile_pims_events, :limitfile_pims_events
+      alias_method :limitsfile_pim_event, :limitfile_pims_events
+      alias_method :limitsfile_pim_events, :limitfile_pims_events
+      alias_method :limitsfile_pims_event, :limitfile_pims_events
+      
       # Returns a new instance, normally there would only ever be one of these
       # assigned to the global variable such as $tester by your target:
       #   $tester = V93K.new
@@ -47,9 +57,14 @@ module OrigenTesters
         @inline_comments = true
 
         @create_limits_file = false   # whether to create separate limits file or not
+        @limitfile_pims_events = [""] # whether to have different PIMS events / test modes for 
+                                      # limites file
+
         @multiport = false            # whether to use multiport bursts or not, if so this
                                       # indicates the name of the port to use
         @smartbuild_capable = false   # whether to support additional files needed for SmartBuild
+
+
         @pin_config = nil
 
         # pattern compile AIV stuff prob belongs there but thus far is needed
