@@ -54,6 +54,7 @@ module OrigenTesters
           pin_levels:      :level_set,
           anaset:          :analog_set,
           test_num:        :test_number,
+          tnum:            :test_number,
           test_function:   :test_method,
           value_on_pass:   :pass_value,
           value_on_fail:   :fail_value,
@@ -91,6 +92,7 @@ module OrigenTesters
         end
 
         def initialize(name, attrs = {})
+print "TEST SUITE INIT : #{name}, #{attrs}\n"
           @name = name
           if interface.flow.sig
             @name = "#{name}_#{interface.flow.sig}"
