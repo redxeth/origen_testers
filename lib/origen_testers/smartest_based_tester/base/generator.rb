@@ -242,7 +242,7 @@ module OrigenTesters
           pattern_compilers.each do |name, sheet|
             g << sheet
           end
-          if $tester.smartbuild
+          if $tester.smartbuild_capable
             pattern_definitions.each do |name, sheet|
               g << sheet
             end

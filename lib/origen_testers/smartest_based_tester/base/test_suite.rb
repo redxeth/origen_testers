@@ -92,7 +92,6 @@ module OrigenTesters
         end
 
         def initialize(name, attrs = {})
-print "TEST SUITE INIT : #{name}, #{attrs}\n"
           @name = name
           if interface.flow.sig
             @name = "#{name}_#{interface.flow.sig}"

@@ -20,24 +20,33 @@ module OrigenTesters
       # and use multiport type code
       attr_accessor :multiport
       alias_method :multi_port, :multiport
+      alias_method :multi_port=, :multiport=
 
       # indicate whether want SmartBuild compatibility
       attr_accessor :smartbuild_capable
       alias_method :smart_build_capable, :smartbuild_capable
-      alias_method :sb_capable, :smartbuild_capable
-      alias_method :sb_on, :smartbuild_capable
+      alias_method :smart_build_capable=, :smartbuild_capable=
       alias_method :smartbuild, :smartbuild_capable
-      alias_method :smart_build, :smartbuild_capable
+      alias_method :smartbuild=, :smartbuild_capable=
 
       # indicate limit PIMS events
       attr_accessor :limitfile_pims_events
-      alias_method :limitfile_pim_event, :limitfile_pims_events
-      alias_method :limitfile_pim_events, :limitfile_pims_events
       alias_method :limitfile_pims_event, :limitfile_pims_events
       alias_method :limitsfile_pims_events, :limitfile_pims_events
-      alias_method :limitsfile_pim_event, :limitfile_pims_events
-      alias_method :limitsfile_pim_events, :limitfile_pims_events
       alias_method :limitsfile_pims_event, :limitfile_pims_events
+      alias_method :limitfile_pims_event=, :limitfile_pims_events=
+      alias_method :limitsfile_pims_events=, :limitfile_pims_events=
+      alias_method :limitsfile_pims_event=, :limitfile_pims_events=
+
+      # pin config file (for AIV generation)
+      attr_accessor :pin_config
+      alias_method :pin_config_file, :pin_config
+      alias_method :pin_config_file=, :pin_config=
+
+      # wavetable (for AIV generation)
+      attr_accessor :wavetable
+      alias_method :wave_table, :wavetable
+      alias_method :wave_table=, :wavetable=
       
       # Returns a new instance, normally there would only ever be one of these
       # assigned to the global variable such as $tester by your target:
@@ -65,7 +74,9 @@ module OrigenTesters
         @smartbuild_capable = false   # whether to support additional files needed for SmartBuild
 
 
-        @pin_config = nil
+        @pin_config = ''
+
+        @wavetable = ''
 
         # pattern compile AIV stuff prob belongs there but thus far is needed
         # dont implement yet-- but later when merging...
