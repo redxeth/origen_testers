@@ -9,6 +9,8 @@ module OrigenTesters
         # Returns an array containing all runtime variables which get set by the flow
         attr_reader :set_runtime_variables
 
+        attr_accessor :add_flow_enable
+
         def var_filename
           @var_filename || 'global'
         end
@@ -43,11 +45,47 @@ module OrigenTesters
         def at_flow_end
         end
 
+        def flow_header
+          h = ['{']
+          if add_flow_enable
+            var = filename.sub(/\..*/, '').upcase
+            var = generate_flag_name("#{var}_ENABLE")
+            if add_flow_enable == :enabled
+              flow_control_variables << [var, 1]
+            else
+              flow_control_variables << [var, 0]
+            end
+            h << "  if @#{var} == 1 then"
+            h << '  {'
+            i = '  '
+          else
+            i = ''
+          end
+          h << i + '  {'
+          set_runtime_variables.each do |var|
+            h << i + "    @#{generate_flag_name(var.to_s)} = -1;"
+          end
+          h << i + '  }, open,"Init Flow Control Vars", ""'
+          h
+        end
+
+        def flow_footer
+          f = []
+          if add_flow_enable
+            f << '  }'
+            f << '  else'
+            f << '  {'
+            f << '  }'
+          end
+          f << "}, open,\"#{filename.sub(/\..*/, '').upcase}\", \"\""
+          f
+        end
+
         def finalize(options = {})
           super
           test_suites.finalize
           test_methods.finalize
-          @indent = 0
+          @indent = add_flow_enable ? 2 : 1
           @lines = []
           @stack = { on_fail: [], on_pass: [] }
           m = Processors::IfRanCleaner.new.process(model.ast)
@@ -58,7 +96,7 @@ module OrigenTesters
         end
 
         def line(str)
-          @lines << (' ' * @indent * 2) + str
+          @lines << ('  ' * @indent) + str
         end
 
         # def on_flow(node)
@@ -127,9 +165,9 @@ module OrigenTesters
         def on_condition_flag(node)
           flag, state, *nodes = *node
           if flag.is_a?(Array)
-            condition = flag.map { |f| "@#{f.upcase} == 1" }.join(' or ')
+            condition = flag.map { |f| "@#{generate_flag_name(f)} == 1" }.join(' or ')
           else
-            condition = "@#{flag.upcase} == 1"
+            condition = "@#{generate_flag_name(flag)} == 1"
           end
           line "if #{condition} then"
           line '{'
@@ -151,7 +189,7 @@ module OrigenTesters
             return
           end
           [flag].flatten.each do |f|
-            flow_control_variables << f.upcase
+            flow_control_variables << generate_flag_name(f)
           end
           on_condition_flag(node)
         end
@@ -162,7 +200,7 @@ module OrigenTesters
             return
           end
           [flag].flatten.each do |f|
-            runtime_control_variables << f.upcase
+            runtime_control_variables << generate_flag_name(f)
           end
           on_condition_flag(node)
         end
@@ -186,7 +224,7 @@ module OrigenTesters
         end
 
         def on_set_run_flag(node)
-          flag = node.value.upcase
+          flag = generate_flag_name(node.value)
           if flag.nil? || flag == "" || flag.empty?
             return
           end
@@ -255,6 +293,17 @@ module OrigenTesters
           @continue = true if value
           yield
           @continue = orig
+        end
+
+        private
+
+        def generate_flag_name(flag)
+          case flag[0]
+          when '$'
+            flag[1..-1]
+          else
+            flag.upcase
+          end
         end
       end
     end
