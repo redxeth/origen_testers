@@ -56,7 +56,22 @@ module OrigenTesters
       attr_accessor :wavetable
       alias_method :wave_table, :wavetable
       alias_method :wave_table=, :wavetable=
-      
+
+      # TMF file (for AIV generation)
+      attr_accessor :tmf_file
+      alias_method :tmf_file, :tmf_file
+      alias_method :tmf_file=, :tmf_file=
+
+      # Single Binary Pattern dir (for AIV generation)
+      attr_accessor :single_patterns_dir
+      alias_method :single_patterns_dir, :single_patterns_dir
+      alias_method :single_patterns_dir=, :single_patterns_dir=
+
+      # AI V2B Options (for AIV generation)
+      attr_accessor :ai_v2b_options
+      alias_method :ai_v2b_options, :ai_v2b_options
+      alias_method :ai_v2b_options=, :ai_v2b_options=
+
       # Returns a new instance, normally there would only ever be one of these
       # assigned to the global variable such as $tester by your target:
       #   $tester = V93K.new
@@ -69,23 +84,33 @@ module OrigenTesters
         @match_entries = 10
         @name = 'v93k'
         @comment_char = '#'
+
         @level_period = true   # DH tried setting to false to help with vlpread patts-- need more work,
                                # however setting to false causes CTIM command to activate below
                                # (before_timeset_change method) which currently can't compile 
+       
         @inline_comments = true
 
         @create_limits_file = false   # whether to create separate limits file or not
+
         @limitfile_pims_events = [""] # whether to have different PIMS events / test modes for 
                                       # limites file
 
         @multiport = false            # whether to use multiport bursts or not, if so this
                                       # indicates the name of the port to use
+
         @smartbuild_capable = false   # whether to support additional files needed for SmartBuild
 
 
-        @pin_config = ''
+        @pin_config = false
 
-        @wavetable = ''
+        @wavetable = false
+
+        @single_patterns_dir = false
+
+        @tmf_file = false
+
+        @ai_v2b_options = false
 
         # pattern compile AIV stuff prob belongs there but thus far is needed
         # dont implement yet-- but later when merging...
