@@ -19,12 +19,12 @@
 %#-   : NOT_IN_USE  (will not generate the burst)
 %#- 
 %#- 
-% package = $soc.respond_to?(:package) ? $soc.revision : ''
+% package = $soc.respond_to?(:package) ? $soc.package : ''
 % revision = $soc.respond_to?(:revision) ? $soc.revision : ''
 %# - need to have your app set $soc.pattern_path if you want to use below
 % location = $soc.respond_to?(:pattern_path) ? $soc.pattern_path : 'pattern path not defined'
 %#-
-"Type","Name","Port","Package","Revision","Location","Pattern Names","Flags"
+"Type","Name","Package","Revision","Port","Location","Pattern Names","Flags"
 % patterns.each do |pattern|
 %   if $tester.multiport
 %     type = "Burst"
@@ -37,7 +37,7 @@
 %   end
 %   pattern_name = pattern
 %   flags = ''
-"<%= type %>","<%= name %>","<%= port %>","<%= package %>","<%= revision %>","<%= location %>","<%= pattern_name %>","<%= flags %>"
+"<%= type %>","<%= name %>","<%= package %>","<%= revision %>","<%= port %>","<%= location %>","<%= pattern_name %>","<%= flags %>"
 % end
 %#-
 % subroutines.each do |pattern|
@@ -46,5 +46,5 @@
 %   port = $tester.multiport ? $tester.multiport : '@'
 %   pattern_name = pattern
 %   flags = ''
-"<%= type %>","<%= name %>","<%= port %>,"<%= package %>","<%= revision %>,"<%= location %>","<%= pattern_name %>,"<%= flags %>"
+"<%= type %>","<%= name %>","<%= package %>","<%= revision %>","<%= port %>","<%= location %>","<%= pattern_name %>","<%= flags %>"
 % end
