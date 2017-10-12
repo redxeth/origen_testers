@@ -50,15 +50,6 @@
 %#-      DETERMINE IF FUNCTIONAL OR NOT
 %        limit_type = (limits.type == :parametric) ? :parametric : :functional
 %#- 
-%#-      GET BURST NAME
-%        if !!suite.pattern && !suite.pattern.empty? && $tester.multiport
-%          burst_name = "#{suite.pattern}_pset"
-%        elsif !suite.pattern
-%          burst_name = ''
-%        else
-%          burst_name = suite.pattern
-%        end
-%#-
 %#-      GET BIN INFO
 %        bin_num = suite.bin
 %        sbin_num = suite.soft_bin
@@ -108,7 +99,7 @@
 %          line_arr = []
 %          line_arr.push("#{suite.name}")   # suite name
 %          line_arr.push("")                # pins
-%          line_arr.push("#{burst_name}")    # test name
+%          line_arr.push("#{suite.pattern}_pset")    # test name (DH temp use 'pset' sinced not multiple limits per test method)
 %          line_arr.push("#{test_number}")  # test number
 %          test_modes.each do |mode| # here repeat fields that are per test mode
 %            line_arr.push("1")                   # lo_limit
@@ -132,10 +123,11 @@
 %#- 
 %#- FUNCTIONAL TESTS
 %        if limit_type == :functional
+%          test_name = limits.test_name
 %          line_arr = []
 %          line_arr.push("#{suite.name}")   # suite name
 %          line_arr.push("")                # pins
-%          line_arr.push("#{burst_name}")    # test name
+%          line_arr.push("#{test_name}")    # test name
 %          line_arr.push("#{test_number}")  # test number
 %          test_modes.each do |mode| # here repeat fields that are per test mode
 %            line_arr.push("1")                   # lo_limit

@@ -38,6 +38,8 @@ module OrigenTesters
 
         private
 
+        # Adds extra digit to make the name unique
+        # if already used
         def make_unique(name)
           @existing_names ||= {}
           if @existing_names[name]
