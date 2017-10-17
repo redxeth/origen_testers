@@ -2,6 +2,7 @@
 %#-   Used by SmartBuild from Advantest
 %#- -------------------------------------------
 %#- 
+{
  "PatternBurst":[
 % patterns.each_with_index do |pattern, index|
 %   if index == patterns.size - 1
@@ -21,3 +22,36 @@
 %   end
 % end
 ],
+% if $tester.pattdep_pingroups
+ "PinGroup":[
+%   $tester.pattdep_pingroups.each do |pingroup|
+        "<%= pingroup %>"<%= pingroup == $tester.pattdep_pingroups.last ? '' : ',' %>
+%   end
+ ],
+% end
+
+ "Pin":[ ],
+
+% if $tester.multiport
+ "Port":[
+   "<%= $tester.multiport %>"
+ ],
+% end
+
+% if $tester.pattdep_relaysetting
+ "Relay_Setting":["<%= $tester.pattdep_relaysetting  %>"], 
+% end
+ 
+ "Utility_Setting":[ ],
+ 
+% if $tester.pattdep_tm_projects
+ "TestMethodProjects":[ 
+%   $tester.pattdep_tm_projects.each do |project|
+      "<%= project %>"<%= project == $tester.pattdep_tm_projects.last ? '' : ',' %>
+%   end
+ ],
+% end
+
+ "IncludeFiles":[ ]
+
+}

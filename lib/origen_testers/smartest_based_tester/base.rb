@@ -72,6 +72,11 @@ module OrigenTesters
       alias_method :ai_v2b_options, :ai_v2b_options
       alias_method :ai_v2b_options=, :ai_v2b_options=
 
+      # Pattern definition file options
+      attr_accessor :pattdep_pingroups
+      attr_accessor :pattdep_tm_projects
+      attr_accessor :pattdep_relaysetting
+
       # Returns a new instance, normally there would only ever be one of these
       # assigned to the global variable such as $tester by your target:
       #   $tester = V93K.new
