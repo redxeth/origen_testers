@@ -14,7 +14,12 @@ module OrigenTesters
         end
 
         def subdirectory
-          'testflow/mfh.testflow.setup'
+          if $tester.smartbuild_capable
+            # Mod to make separate output dir per flow file
+            "#{@id}"
+          else
+            'testflow/mfh.testflow.setup'
+          end
         end
 
         def clean_flow_control_variables

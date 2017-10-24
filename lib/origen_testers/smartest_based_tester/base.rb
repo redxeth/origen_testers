@@ -91,21 +91,20 @@ module OrigenTesters
         @comment_char = '#'
 
         @level_period = true   # DH tried setting to false to help with vlpread patts-- need more work,
-                               # however setting to false causes CTIM command to activate below
-                               # (before_timeset_change method) which currently can't compile 
-       
+        # however setting to false causes CTIM command to activate below
+        # (before_timeset_change method) which currently can't compile
+
         @inline_comments = true
 
         @create_limits_file = false   # whether to create separate limits file or not
 
-        @limitfile_pims_events = [""] # whether to have different PIMS events / test modes for 
-                                      # limites file
+        @limitfile_pims_events = [''] # whether to have different PIMS events / test modes for
+        # limites file
 
         @multiport = false            # whether to use multiport bursts or not, if so this
-                                      # indicates the name of the port to use
+        # indicates the name of the port to use
 
         @smartbuild_capable = false   # whether to support additional files needed for SmartBuild
-
 
         @pin_config = false
 
@@ -119,14 +118,14 @@ module OrigenTesters
 
         # pattern compile AIV stuff prob belongs there but thus far is needed
         # dont implement yet-- but later when merging...
-#        @tmp_dir
-#        @tmf_dir
-#        @vbc_dir
-#        @avc_dir
-#        @allvec_file
-#        @single_pattern_binary_dir
-#        @ai_v2b_options
-#        @tmf_file
+        #        @tmp_dir
+        #        @tmf_dir
+        #        @vbc_dir
+        #        @avc_dir
+        #        @allvec_file
+        #        @single_pattern_binary_dir
+        #        @ai_v2b_options
+        #        @tmf_file
         @overlay_style = :subroutine		# default to use subroutine for overlay
         @capture_style = :hram			# default to use hram for capture
         @overlay_subr = nil
@@ -489,7 +488,7 @@ module OrigenTesters
       # Call a match loop.
       # no multiple entry supported
       def call_match
-        call_subroutine("match_done")
+        call_subroutine('match_done')
       end
 
       # Returns the number of cycles to wait for any fails to propagate through the pipeline based on

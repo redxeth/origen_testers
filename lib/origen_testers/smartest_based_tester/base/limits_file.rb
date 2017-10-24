@@ -13,9 +13,13 @@ module OrigenTesters
         end
 
         def subdirectory
-          'testtable/limits'
+          if $tester.smartbuild_capable
+            # Mod to make separate output dir per flow file
+            "#{@id}"
+          else
+            'testtable/limits'
+          end
         end
-
       end
     end
   end

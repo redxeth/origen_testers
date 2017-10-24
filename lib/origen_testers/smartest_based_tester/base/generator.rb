@@ -24,6 +24,17 @@ module OrigenTesters
         end
         alias_method :add_test_method_library, :add_tml
 
+        def filename
+          name = Origen.file_handler.current_file.basename('.rb').to_s
+          name = name.sub(/_resources?/, '')
+          if Origen.config.program_prefix
+            unless name =~ /^#{Origen.config.program_prefix}/i
+              name = "#{Origen.config.program_prefix}_#{name}"
+            end
+          end
+          name
+        end
+
         # @api private
         def at_flow_start
           flow.at_flow_start
@@ -33,6 +44,24 @@ module OrigenTesters
           @pattern_master_filename = nil
           @pattern_definition_filename = nil
           @pattern_dependency_filename = nil
+          if $tester.smartbuild_capable
+            # force unique files per flow for certain files
+            #
+            #  pattern_master - common
+            #  pattern_compiler - common
+            #  pattern definitions - common
+            #
+            #  pattern dependency - unique
+            #  limits file - unique
+            #  testflow variables - unique
+
+            # by default common objects are used, if want unique have to change the name
+            flow.var_filename = "#{filename}"
+            flow.limits_filename = "#{filename}"
+            self.pattern_dependency_filename = "#{filename}"
+            # pattern dependency also requires this since has to reference different pattern references
+            self.unique_pattern_references_name = "#{filename}"
+          end
         end
 
         # @api private
@@ -56,7 +85,12 @@ module OrigenTesters
         def resources_filename=(name)
           self.pattern_master_filename = name
           self.pattern_references_name = name
+          if $tester.smartbuild_capable
+            self.pattern_dependency_filename = name
+            self.pattern_definition_filename = name
+          end
           flow.var_filename = name
+          flow.limits_filename = name if $tester.create_limits_file
         end
 
         def pattern_master_filename=(name)
@@ -74,7 +108,7 @@ module OrigenTesters
         def pattern_definition_filename
           @pattern_definition_filename || 'global'
         end
-        
+
         def pattern_dependency_filename=(name)
           @pattern_dependency_filename = name
         end
@@ -90,6 +124,7 @@ module OrigenTesters
           p = platform::Flow.new
           p.inhibit_output if Origen.interface.resources_mode?
           p.filename = f
+          p.id = f
           p.test_suites ||= platform::TestSuites.new(p)
           p.test_methods ||= platform::TestMethods.new(p)
           flow_sheets[f] = p
@@ -102,7 +137,11 @@ module OrigenTesters
           pattern_masters[pattern_master_filename] ||= begin
             m = platform::PatternMaster.new(manually_register: true)
             name = "#{pattern_master_filename}.pmfl"
-            name = "#{Origen.config.program_prefix}_#{name}" if Origen.config.program_prefix
+            if Origen.config.program_prefix
+              unless name =~ /^#{Origen.config.program_prefix}/i
+                name = "#{Origen.config.program_prefix}_#{name}"
+              end
+            end
             m.filename = name
             m.id = pattern_master_filename
             m
@@ -121,7 +160,11 @@ module OrigenTesters
           pattern_compilers[pattern_master_filename] ||= begin
             m = platform::PatternCompiler.new(manually_register: true)
             name = "#{pattern_master_filename}.aiv"
-            name = "#{Origen.config.program_prefix}_#{name}" if Origen.config.program_prefix
+            if Origen.config.program_prefix
+              unless name =~ /^#{Origen.config.program_prefix}/i
+                name = "#{Origen.config.program_prefix}_#{name}"
+              end
+            end
             m.filename = name
             m.id = pattern_master_filename
             m
@@ -139,9 +182,14 @@ module OrigenTesters
           pattern_dependencies[pattern_dependency_filename] ||= begin
             m = platform::PatternDependency.new(manually_register: true)
             name = "#{pattern_dependency_filename}_pattdep.json"
-            name = "#{Origen.config.program_prefix}_#{name}" if Origen.config.program_prefix
+            if Origen.config.program_prefix
+              unless name =~ /^#{Origen.config.program_prefix}/i
+                name = "#{Origen.config.program_prefix}_#{name}"
+              end
+            end
             m.filename = name
             m.id = pattern_dependency_filename
+            m.subdir = pattern_dependency_filename
             m
           end
         end
@@ -157,7 +205,11 @@ module OrigenTesters
           pattern_definitions[pattern_definition_filename] ||= begin
             m = platform::PatternDefinition.new(manually_register: true)
             name = "#{pattern_definition_filename}_pattdef.csv"
-            name = "#{Origen.config.program_prefix}_#{name}" if Origen.config.program_prefix
+            if Origen.config.program_prefix
+              unless name =~ /^#{Origen.config.program_prefix}/i
+                name = "#{Origen.config.program_prefix}_#{name}"
+              end
+            end
             m.filename = name
             m.id = pattern_definition_filename
             m
@@ -177,7 +229,11 @@ module OrigenTesters
           variables_files[name] ||= begin
             m = platform::VariablesFile.new(manually_register: true)
             filename = "#{name}_vars.tf"
-            filename = "#{Origen.config.program_prefix}_#{filename}" if Origen.config.program_prefix
+            if Origen.config.program_prefix
+              unless filename =~ /^#{Origen.config.program_prefix}/i
+                filename = "#{Origen.config.program_prefix}_#{name}"
+              end
+            end
             m.filename = filename
             m.id = name
             m
@@ -197,7 +253,11 @@ module OrigenTesters
           limits_files[name] ||= begin
             m = platform::LimitsFile.new(manually_register: true)
             filename = "#{name}_limits.csv"
-            filename = "#{Origen.config.program_prefix}_#{filename}" if Origen.config.program_prefix
+            if Origen.config.program_prefix
+              unless filename =~ /^#{Origen.config.program_prefix}/i
+                filename = "#{Origen.config.program_prefix}_#{name}"
+              end
+            end
             m.filename = filename
             m.id = name
             m
@@ -213,7 +273,8 @@ module OrigenTesters
         def pattern_reference_recorded(name, options = {})
           # Will be called everytime a pattern reference is made that the ATE should be aware of,
           # don't need to remember it as it can be fetched from all_pattern_references later, but
-          # need to instantiate a pattern master and compiler to handle it later
+          # need to instantiate a pattern related objects (master, compiler, definition, dependency)
+          # to handle it later
           pattern_master
           pattern_compiler
           pattern_definition
@@ -239,8 +300,10 @@ module OrigenTesters
           flow_sheets.each do |_name, sheet|
             g << sheet
           end
-          pattern_masters.each do |name, sheet|
-            g << sheet
+          unless $tester.smartbuild_capable
+            pattern_masters.each do |name, sheet|
+              g << sheet
+            end
           end
           pattern_compilers.each do |name, sheet|
             g << sheet
@@ -249,7 +312,7 @@ module OrigenTesters
             pattern_definitions.each do |name, sheet|
               g << sheet
             end
-            pattern_dependencies.each do |name, sheet|
+            pattern_dependencies.each do |name, sheet|  # doesn't work yet
               g << sheet
             end
           end

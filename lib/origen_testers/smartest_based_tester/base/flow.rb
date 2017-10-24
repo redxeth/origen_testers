@@ -10,6 +10,7 @@ module OrigenTesters
         attr_reader :set_runtime_variables
 
         attr_accessor :add_flow_enable
+        attr_accessor :id
 
         def var_filename
           @var_filename || 'global'
@@ -20,11 +21,26 @@ module OrigenTesters
         end
 
         def subdirectory
-          'testflow/mfh.testflow.group'
+          if $tester.smartbuild_capable
+            # Mod to make separate output dir per flow file
+            subdir = @id
+            if Origen.config.program_prefix
+              unless subdir =~ /^#{Origen.config.program_prefix}/i
+                subdir = "#{Origen.config.program_prefix}_#{name}"
+              end
+            end
+            "#{subdir}"
+          else
+            'testflow/mfh.testflow.group'
+          end
         end
 
         def filename
           super.gsub('_flow', '')
+        end
+
+        def group_name
+          filename.sub(/\..*/, '') # why upcase?
         end
 
         def hardware_bin_descriptions
@@ -77,7 +93,7 @@ module OrigenTesters
             f << '  {'
             f << '  }'
           end
-          f << "}, open,\"#{filename.sub(/\..*/, '').upcase}\", \"\""
+          f << "}, open,\"#{group_name}\", \"\""
           f
         end
 
@@ -185,7 +201,7 @@ module OrigenTesters
 
         def on_flow_flag(node)
           flag, state, *nodes = *node
-          if flag.nil? || flag == "" || flag.empty?
+          if flag.nil? || flag == '' || flag.empty?
             return
           end
           [flag].flatten.each do |f|
@@ -196,7 +212,7 @@ module OrigenTesters
 
         def on_run_flag(node)
           flag, state, *nodes = *node
-          if flag.nil? || flag == "" || flag.empty?
+          if flag.nil? || flag == '' || flag.empty?
             return
           end
           [flag].flatten.each do |f|
@@ -207,7 +223,7 @@ module OrigenTesters
 
         def on_enable_flow_flag(node)
           flag = node.value.upcase
-          if flag.nil? || flag == "" || flag.empty?
+          if flag.nil? || flag == '' || flag.empty?
             return
           end
           flow_control_variables << flag
@@ -216,7 +232,7 @@ module OrigenTesters
 
         def on_disable_flow_flag(node)
           flag = node.value.upcase
-          if flag.nil? || flag == "" || flag.empty?
+          if flag.nil? || flag == '' || flag.empty?
             return
           end
           flow_control_variables << flag
@@ -225,7 +241,7 @@ module OrigenTesters
 
         def on_set_run_flag(node)
           flag = generate_flag_name(node.value)
-          if flag.nil? || flag == "" || flag.empty?
+          if flag.nil? || flag == '' || flag.empty?
             return
           end
           runtime_control_variables << flag
@@ -261,10 +277,10 @@ module OrigenTesters
             if node.to_a[0] == 'pass'
               line "stop_bin \"#{sbin}\", \"\", , good, noreprobe, green, #{bin}, over_on;"
             elsif node.to_a[0] == 'multi_bin'
-              line "multi_bin;"
-            else #DH hack for now -- need to update origen_testers to support multibin
-              #line "stop_bin \"#{sbin}\", \"#{sdesc}\", , bad, noreprobe, red, #{bin}, over_on;"
-              line "multi_bin;"
+              line 'multi_bin;'
+            else # DH hack for now -- need to update origen_testers to support multibin
+              # line "stop_bin \"#{sbin}\", \"#{sdesc}\", , bad, noreprobe, red, #{bin}, over_on;"
+              line 'multi_bin;'
             end
           end
         end

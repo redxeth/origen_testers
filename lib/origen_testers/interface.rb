@@ -167,23 +167,45 @@ module OrigenTesters
           pattern_reference_recorded(name, options)
         end
       end
+      # reference common pattern references
       base = options[:subroutine] ? pattern_references[:subroutine] : pattern_references[:main]
+      # reference unique pattern references
+      base_unique = options[:subroutine] ? pattern_references(ref_type: :unique)[:subroutine] : pattern_references(ref_type: :unique)[:main]
+
+      # assign the pattern to a pattern reference type
+      # NOTE here takes advantage of the fact that in Ruby the assignment above of a hash
+      # (pattern_references method which points to @@pattern_references class variable)
+      # to a new hash (base) actually still points to the same object.  So changing
+      # one changes the other.
       case options[:type]
       when :origen
         base[:origen] << name
+        base_unique[:origen] << name
       when :ate
         base[:ate] << name
+        base_unique[:ate] << name
       when nil
         base[:all] << name
+        base_unique[:all] << name
       else
         fail "Unknown pattern reference type, #{options[:type]}, valid values are :origen or :ate"
       end
       nil
     end
 
-    def pattern_references
+    def pattern_references(options = {})
+      options = {
+        ref_type: :common
+      }.merge(options)
+      if options[:ref_type] == :common
+        patt_ref_name = common_pattern_references_name
+      elsif options[:ref_type] == :unique
+        patt_ref_name = unique_pattern_references_name
+      else
+        fail "Unknown pattern reference type, #{options[:ref_type]}, must be :common or :unique"
+      end
       @@pattern_references ||= {}
-      @@pattern_references[pattern_references_name] ||= {
+      @@pattern_references[patt_ref_name] ||= {
         main:       {
           all:    [],
           origen: [],
@@ -202,12 +224,22 @@ module OrigenTesters
       @@pattern_references
     end
 
-    def pattern_references_name=(name)
-      @pattern_references_name = name
+    def common_pattern_references_name=(name)
+      @common_pattern_references_name = name
+    end
+    alias_method :pattern_references_name=, :common_pattern_references_name=
+
+    def common_pattern_references_name
+      @common_pattern_references_name || 'global'
+    end
+    alias_method :pattern_references_name, :common_pattern_references_name
+
+    def unique_pattern_references_name=(name)
+      @unique_pattern_references_name = name
     end
 
-    def pattern_references_name
-      @pattern_references_name || 'global'
+    def unique_pattern_references_name
+      @unique_pattern_references_name || 'global'
     end
 
     # @deprecated Use record_pattern_reference instead
