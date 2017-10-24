@@ -638,7 +638,9 @@ module OrigenTesters
           end
           comment = "#{repeat_comment}#{comment}"
         end
-
+        if comment =~ /;/
+          comment.gsub!(';',',')  # replace semicolons as they indicate end of inline comments on 93k
+        end
         # Max comment length 250 at the end
         "#{microcode.ljust(25)}#{timeset.ljust(27)}#{pin_vals}# #{comment[0, 247]};"
       end
